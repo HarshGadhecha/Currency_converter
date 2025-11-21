@@ -1,5 +1,3 @@
-import { json } from "react-router";
-import { cors } from "@react-router/node";
 import { getExchangeRates, SUPPORTED_CURRENCIES } from "../services/currency.service";
 
 /**
@@ -25,7 +23,7 @@ export const loader = async ({ request }) => {
       });
     }
 
-    return json(
+    return Response.json(
       {
         success: true,
         base: baseCurrency,
@@ -44,7 +42,7 @@ export const loader = async ({ request }) => {
     );
   } catch (error) {
     console.error("Error fetching exchange rates:", error);
-    return json(
+    return Response.json(
       {
         success: false,
         error: "Failed to fetch exchange rates",
