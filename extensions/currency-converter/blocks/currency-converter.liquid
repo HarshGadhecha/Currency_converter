@@ -1,0 +1,85 @@
+{% comment %}
+  Currency Converter App Block
+  This block can be added to any theme section
+{% endcomment %}
+
+{% schema %}
+{
+  "name": "Currency Converter",
+  "target": "body",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "Enable Currency Converter",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_picker",
+      "label": "Show Currency Picker",
+      "default": true,
+      "info": "Display a dropdown for customers to manually select currency"
+    },
+    {
+      "type": "select",
+      "id": "picker_position",
+      "label": "Picker Position",
+      "options": [
+        {
+          "value": "top-right",
+          "label": "Top Right"
+        },
+        {
+          "value": "top-left",
+          "label": "Top Left"
+        },
+        {
+          "value": "bottom-right",
+          "label": "Bottom Right"
+        },
+        {
+          "value": "bottom-left",
+          "label": "Bottom Left"
+        }
+      ],
+      "default": "top-right"
+    }
+  ]
+}
+{% endschema %}
+
+{% if block.settings.enabled %}
+  <div class="currency-converter-wrapper" data-position="{{ block.settings.picker_position }}">
+    {% render 'currency-converter' %}
+  </div>
+
+  <style>
+    #currency-converter-picker {
+      {% case block.settings.picker_position %}
+        {% when 'top-right' %}
+          top: 20px;
+          right: 20px;
+        {% when 'top-left' %}
+          top: 20px;
+          left: 20px;
+          right: auto;
+        {% when 'bottom-right' %}
+          bottom: 20px;
+          top: auto;
+          right: 20px;
+        {% when 'bottom-left' %}
+          bottom: 20px;
+          top: auto;
+          left: 20px;
+          right: auto;
+      {% endcase %}
+    }
+
+    {% unless block.settings.show_picker %}
+      #currency-converter-picker {
+        display: none !important;
+      }
+    {% endunless %}
+  </style>
+{% endif %}

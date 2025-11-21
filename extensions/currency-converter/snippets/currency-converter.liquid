@@ -1,0 +1,22 @@
+{% comment %}
+  Currency Converter Snippet
+  Include this in your theme to enable automatic currency conversion
+{% endcomment %}
+
+<script>
+  window.CURRENCY_CONVERTER_CONFIG = {
+    shopCurrency: "{{ shop.currency }}",
+    moneyFormat: "{{ shop.money_format }}",
+    enableAutoDetect: true,
+    showCurrencyPicker: true
+  };
+</script>
+
+<script src="{{ 'currency-converter.js' | asset_url }}" defer></script>
+
+<style>
+  /* Ensure price elements are visible during conversion */
+  [data-currency-converted] {
+    transition: opacity 0.2s ease;
+  }
+</style>

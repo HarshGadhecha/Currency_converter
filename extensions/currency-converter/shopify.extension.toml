@@ -1,0 +1,11 @@
+api_version = "2024-10"
+
+[[extensions]]
+type = "theme"
+name = "Currency Converter"
+handle = "currency-converter"
+
+[extensions.settings]
+[[extensions.settings.blocks]]
+type = "app"
+name = "Currency Converter"

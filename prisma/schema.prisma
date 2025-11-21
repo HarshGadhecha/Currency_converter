@@ -30,3 +30,16 @@ model Session {
   collaborator  Boolean?  @default(false)
   emailVerified Boolean?  @default(false)
 }
+
+model CurrencySettings {
+  id                  String   @id @default(uuid())
+  shop                String   @unique
+  enabled             Boolean  @default(true)
+  baseCurrency        String   @default("USD")
+  supportedCurrencies String   @default("USD,EUR,GBP,CAD,AUD,JPY,INR")
+  autoDetect          Boolean  @default(true)
+  showCurrencyPicker  Boolean  @default(true)
+  roundPrices         Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
