@@ -1,6 +1,7 @@
 api_version = "2024-10"
 
 [[extensions]]
+uid = "43bb6fdf-0000-d2e4-8ba3-8468fa210e9e3e591340"
 type = "theme"
 name = "Currency Converter"
 handle = "currency-converter"
