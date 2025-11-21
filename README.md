@@ -1,8 +1,36 @@
+# 💱 Shopify Currency Converter App
+
+A powerful Shopify app that automatically converts product prices to your customer's local currency based on their location, with real-time exchange rates.
+
+## ✨ Key Features
+
+- 🌍 **Automatic Currency Detection** - Detects customer location and displays prices in their local currency
+- 💱 **Real-Time Exchange Rates** - Uses free API for up-to-date currency conversion
+- 🎨 **Currency Picker Dropdown** - Lets customers manually select their preferred currency
+- ⚡ **Fast & Cached** - Exchange rates cached for optimal performance
+- 🎛️ **Easy Configuration** - Simple admin interface to configure supported currencies
+- 📱 **Responsive Design** - Works perfectly on desktop and mobile
+- 🔄 **Dynamic Updates** - Automatically converts dynamically loaded prices
+
+## 🚀 Quick Start
+
+See [CURRENCY_CONVERTER_GUIDE.md](./CURRENCY_CONVERTER_GUIDE.md) for complete installation and setup instructions.
+
+### Installation
+
+```bash
+npm install
+npm run setup
+npm run dev
+```
+
+Then press `P` to open the installation URL and install the app in your development store.
+
+---
+
 # Shopify App Template - React Router
 
-This is a template for building a [Shopify app](https://shopify.dev/docs/apps/getting-started) using [React Router](https://reactrouter.com/).  It was forked from the [Shopify Remix app template](https://github.com/Shopify/shopify-app-template-remix) and converted to React Router.
-
-Rather than cloning this repo, follow the [Quick Start steps](https://github.com/Shopify/shopify-app-template-react-router#quick-start).
+This app is built using the [Shopify App Template for React Router](https://github.com/Shopify/shopify-app-template-react-router).
 
 Visit the [`shopify.dev` documentation](https://shopify.dev/docs/api/shopify-app-react-router) for more details on the React Router app package.
 
