@@ -15,6 +15,9 @@ export default function CurrencySettings() {
   const fetcher = useFetcher();
   const shopify = useAppBridge();
 
+  // Debug: Log currencies to console
+  console.log("Currencies loaded:", currencies);
+
   // Form state
   const [enabled, setEnabled] = useState(true);
   const [baseCurrency, setBaseCurrency] = useState("USD");
@@ -32,6 +35,17 @@ export default function CurrencySettings() {
   const [roundPrices, setRoundPrices] = useState(false);
 
   const isLoading = fetcher.state === "submitting";
+
+  // Safety check: ensure currencies exist
+  if (!currencies || Object.keys(currencies).length === 0) {
+    return (
+      <s-page heading="Currency Converter Settings">
+        <s-section>
+          <s-text>Loading currencies...</s-text>
+        </s-section>
+      </s-page>
+    );
+  }
 
   // Load settings on mount
   useEffect(() => {
@@ -98,12 +112,26 @@ export default function CurrencySettings() {
 
       <s-section heading="General Settings">
         <s-stack direction="block" gap="base">
-          <s-checkbox
-            checked={enabled}
-            onChange={(e) => setEnabled(e.target.checked)}
-          >
-            Enable Currency Converter
-          </s-checkbox>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer'
+          }}>
+            <input
+              type="checkbox"
+              checked={enabled}
+              onChange={(e) => setEnabled(e.target.checked)}
+              style={{
+                width: '16px',
+                height: '16px',
+                cursor: 'pointer'
+              }}
+            />
+            <span style={{ fontSize: '14px', fontWeight: '500' }}>
+              Enable Currency Converter
+            </span>
+          </label>
 
           <s-paragraph>
             When enabled, product prices will be automatically converted to the
@@ -119,23 +147,43 @@ export default function CurrencySettings() {
             this currency.
           </s-paragraph>
 
-          <s-select
-            value={baseCurrency}
-            onChange={(e) => {
-              const newBase = e.target.value;
-              setBaseCurrency(newBase);
-              // Ensure base currency is in selected currencies
-              if (!selectedCurrencies.includes(newBase)) {
-                setSelectedCurrencies([...selectedCurrencies, newBase]);
-              }
-            }}
-          >
-            {Object.entries(currencies).map(([code, info]) => (
-              <option key={code} value={code}>
-                {code} - {info.name} ({info.symbol})
-              </option>
-            ))}
-          </s-select>
+          <div style={{ marginTop: '12px' }}>
+            <label htmlFor="base-currency-select" style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontWeight: '500',
+              fontSize: '14px'
+            }}>
+              Base Currency
+            </label>
+            <select
+              id="base-currency-select"
+              value={baseCurrency}
+              onChange={(e) => {
+                const newBase = e.target.value;
+                setBaseCurrency(newBase);
+                // Ensure base currency is in selected currencies
+                if (!selectedCurrencies.includes(newBase)) {
+                  setSelectedCurrencies([...selectedCurrencies, newBase]);
+                }
+              }}
+              style={{
+                width: '100%',
+                maxWidth: '400px',
+                padding: '8px 12px',
+                fontSize: '14px',
+                border: '1px solid #c9cccf',
+                borderRadius: '8px',
+                backgroundColor: 'white'
+              }}
+            >
+              {Object.entries(currencies).map(([code, info]) => (
+                <option key={code} value={code}>
+                  {code} - {info.name} ({info.symbol})
+                </option>
+              ))}
+            </select>
+          </div>
         </s-stack>
       </s-section>
 
@@ -146,18 +194,41 @@ export default function CurrencySettings() {
             these currencies in the currency picker.
           </s-paragraph>
 
-          <s-stack direction="inline" gap="small" wrap>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+            gap: '12px',
+            marginTop: '12px'
+          }}>
             {Object.entries(currencies).map(([code, info]) => (
-              <s-checkbox
+              <label
                 key={code}
-                checked={selectedCurrencies.includes(code)}
-                onChange={() => toggleCurrency(code)}
-                disabled={code === baseCurrency}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '8px',
+                  cursor: code === baseCurrency ? 'not-allowed' : 'pointer',
+                  opacity: code === baseCurrency ? 0.6 : 1
+                }}
               >
-                {code} ({info.symbol})
-              </s-checkbox>
+                <input
+                  type="checkbox"
+                  checked={selectedCurrencies.includes(code)}
+                  onChange={() => toggleCurrency(code)}
+                  disabled={code === baseCurrency}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    cursor: code === baseCurrency ? 'not-allowed' : 'pointer'
+                  }}
+                />
+                <span style={{ fontSize: '14px' }}>
+                  {code} ({info.symbol})
+                </span>
+              </label>
             ))}
-          </s-stack>
+          </div>
 
           <s-text tone="subdued">
             {selectedCurrencies.length} currencies selected
@@ -167,36 +238,86 @@ export default function CurrencySettings() {
 
       <s-section heading="Display Options">
         <s-stack direction="block" gap="base">
-          <s-checkbox
-            checked={autoDetect}
-            onChange={(e) => setAutoDetect(e.target.checked)}
-          >
-            Auto-detect customer location
-          </s-checkbox>
-          <s-text tone="subdued">
-            Automatically detect the customer's country and show prices in their
-            local currency
-          </s-text>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer'
+              }}>
+                <input
+                  type="checkbox"
+                  checked={autoDetect}
+                  onChange={(e) => setAutoDetect(e.target.checked)}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    cursor: 'pointer'
+                  }}
+                />
+                <span style={{ fontSize: '14px', fontWeight: '500' }}>
+                  Auto-detect customer location
+                </span>
+              </label>
+              <s-text tone="subdued">
+                Automatically detect the customer's country and show prices in their
+                local currency
+              </s-text>
+            </div>
 
-          <s-checkbox
-            checked={showCurrencyPicker}
-            onChange={(e) => setShowCurrencyPicker(e.target.checked)}
-          >
-            Show currency picker dropdown
-          </s-checkbox>
-          <s-text tone="subdued">
-            Allow customers to manually select their preferred currency
-          </s-text>
+            <div>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer'
+              }}>
+                <input
+                  type="checkbox"
+                  checked={showCurrencyPicker}
+                  onChange={(e) => setShowCurrencyPicker(e.target.checked)}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    cursor: 'pointer'
+                  }}
+                />
+                <span style={{ fontSize: '14px', fontWeight: '500' }}>
+                  Show currency picker dropdown
+                </span>
+              </label>
+              <s-text tone="subdued">
+                Allow customers to manually select their preferred currency
+              </s-text>
+            </div>
 
-          <s-checkbox
-            checked={roundPrices}
-            onChange={(e) => setRoundPrices(e.target.checked)}
-          >
-            Round converted prices
-          </s-checkbox>
-          <s-text tone="subdued">
-            Round prices to the nearest whole number (e.g., $19.99 becomes $20.00)
-          </s-text>
+            <div>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer'
+              }}>
+                <input
+                  type="checkbox"
+                  checked={roundPrices}
+                  onChange={(e) => setRoundPrices(e.target.checked)}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    cursor: 'pointer'
+                  }}
+                />
+                <span style={{ fontSize: '14px', fontWeight: '500' }}>
+                  Round converted prices
+                </span>
+              </label>
+              <s-text tone="subdued">
+                Round prices to the nearest whole number (e.g., $19.99 becomes $20.00)
+              </s-text>
+            </div>
+          </div>
         </s-stack>
       </s-section>
 
