@@ -1,0 +1,7 @@
+{
+  "currency_converter": {
+    "name": "Currency Converter",
+    "picker_label": "Currency",
+    "loading": "Loading currencies..."
+  }
+}
