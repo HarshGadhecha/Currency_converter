@@ -1,4 +1,3 @@
-import { json } from "react-router";
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
 
@@ -29,7 +28,7 @@ export const loader = async ({ request }) => {
       });
     }
 
-    return json({
+    return Response.json({
       success: true,
       settings: {
         ...settings,
@@ -38,7 +37,7 @@ export const loader = async ({ request }) => {
     });
   } catch (error) {
     console.error("Error loading currency settings:", error);
-    return json(
+    return Response.json(
       {
         success: false,
         error: "Failed to load settings",
@@ -92,7 +91,7 @@ export const action = async ({ request }) => {
       },
     });
 
-    return json({
+    return Response.json({
       success: true,
       settings: {
         ...settings,
@@ -101,7 +100,7 @@ export const action = async ({ request }) => {
     });
   } catch (error) {
     console.error("Error saving currency settings:", error);
-    return json(
+    return Response.json(
       {
         success: false,
         error: "Failed to save settings",
