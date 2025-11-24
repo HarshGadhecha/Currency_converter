@@ -1,0 +1,26 @@
+-- AlterTable
+ALTER TABLE "CurrencySettings" ADD COLUMN "borderRadius" TEXT NOT NULL DEFAULT '8px';
+ALTER TABLE "CurrencySettings" ADD COLUMN "borderWidth" TEXT NOT NULL DEFAULT '1px';
+ALTER TABLE "CurrencySettings" ADD COLUMN "borderColor" TEXT NOT NULL DEFAULT '#dddddd';
+ALTER TABLE "CurrencySettings" ADD COLUMN "shadowEnabled" BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE "CurrencySettings" ADD COLUMN "shadowDepth" TEXT NOT NULL DEFAULT 'medium';
+ALTER TABLE "CurrencySettings" ADD COLUMN "backgroundType" TEXT NOT NULL DEFAULT 'solid';
+ALTER TABLE "CurrencySettings" ADD COLUMN "backgroundColor" TEXT NOT NULL DEFAULT '#ffffff';
+ALTER TABLE "CurrencySettings" ADD COLUMN "backgroundGradient" TEXT NOT NULL DEFAULT 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+ALTER TABLE "CurrencySettings" ADD COLUMN "themePreset" TEXT NOT NULL DEFAULT 'light';
+ALTER TABLE "CurrencySettings" ADD COLUMN "displayMode" TEXT NOT NULL DEFAULT 'symbol';
+ALTER TABLE "CurrencySettings" ADD COLUMN "themeMode" TEXT NOT NULL DEFAULT 'auto';
+ALTER TABLE "CurrencySettings" ADD COLUMN "customLightBg" TEXT NOT NULL DEFAULT '#ffffff';
+ALTER TABLE "CurrencySettings" ADD COLUMN "customLightText" TEXT NOT NULL DEFAULT '#333333';
+ALTER TABLE "CurrencySettings" ADD COLUMN "customDarkBg" TEXT NOT NULL DEFAULT '#1a1a1a';
+ALTER TABLE "CurrencySettings" ADD COLUMN "customDarkText" TEXT NOT NULL DEFAULT '#ffffff';
+ALTER TABLE "CurrencySettings" ADD COLUMN "desktopPosition" TEXT NOT NULL DEFAULT 'top-right';
+ALTER TABLE "CurrencySettings" ADD COLUMN "desktopCustomX" TEXT NOT NULL DEFAULT '20px';
+ALTER TABLE "CurrencySettings" ADD COLUMN "desktopCustomY" TEXT NOT NULL DEFAULT '20px';
+ALTER TABLE "CurrencySettings" ADD COLUMN "mobilePosition" TEXT NOT NULL DEFAULT 'bottom-fixed';
+ALTER TABLE "CurrencySettings" ADD COLUMN "mobileCustomX" TEXT NOT NULL DEFAULT '50%';
+ALTER TABLE "CurrencySettings" ADD COLUMN "mobileCustomY" TEXT NOT NULL DEFAULT 'auto';
+ALTER TABLE "CurrencySettings" ADD COLUMN "mobileCompact" BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE "CurrencySettings" ADD COLUMN "fontSize" TEXT NOT NULL DEFAULT '14px';
+ALTER TABLE "CurrencySettings" ADD COLUMN "padding" TEXT NOT NULL DEFAULT '12px';
+ALTER TABLE "CurrencySettings" ADD COLUMN "zIndex" INTEGER NOT NULL DEFAULT 9999;
