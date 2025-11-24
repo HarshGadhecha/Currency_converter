@@ -40,6 +40,48 @@ model CurrencySettings {
   autoDetect          Boolean  @default(true)
   showCurrencyPicker  Boolean  @default(true)
   roundPrices         Boolean  @default(false)
+
+  // Shape and Border Customization
+  borderRadius        String   @default("8px")
+  borderWidth         String   @default("1px")
+  borderColor         String   @default("#dddddd")
+
+  // Shadow Customization
+  shadowEnabled       Boolean  @default(true)
+  shadowDepth         String   @default("medium") // light, medium, strong
+
+  // Background Customization
+  backgroundType      String   @default("solid") // solid, gradient, theme
+  backgroundColor     String   @default("#ffffff")
+  backgroundGradient  String   @default("linear-gradient(135deg, #667eea 0%, #764ba2 100%)")
+  themePreset         String   @default("light") // light, dark, custom
+
+  // Currency Display Options
+  displayMode         String   @default("symbol") // symbol, flag, flag-symbol
+
+  // Theme Support
+  themeMode           String   @default("auto") // auto, light, dark, custom
+  customLightBg       String   @default("#ffffff")
+  customLightText     String   @default("#333333")
+  customDarkBg        String   @default("#1a1a1a")
+  customDarkText      String   @default("#ffffff")
+
+  // Desktop Positioning
+  desktopPosition     String   @default("top-right") // top-right, top-left, bottom-right, bottom-left, custom
+  desktopCustomX      String   @default("20px")
+  desktopCustomY      String   @default("20px")
+
+  // Mobile Positioning
+  mobilePosition      String   @default("bottom-fixed") // bottom-fixed, top-fixed, floating, custom
+  mobileCustomX       String   @default("50%")
+  mobileCustomY       String   @default("auto")
+  mobileCompact       Boolean  @default(true)
+
+  // Advanced Styling
+  fontSize            String   @default("14px")
+  padding             String   @default("12px")
+  zIndex              Int      @default(9999)
+
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
