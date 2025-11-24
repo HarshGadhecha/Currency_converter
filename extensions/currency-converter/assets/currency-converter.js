@@ -38,6 +38,30 @@
     ZAR: "R",
   };
 
+  // Currency flag emojis mapping
+  const CURRENCY_FLAGS = {
+    USD: "🇺🇸",
+    EUR: "🇪🇺",
+    GBP: "🇬🇧",
+    CAD: "🇨🇦",
+    AUD: "🇦🇺",
+    JPY: "🇯🇵",
+    INR: "🇮🇳",
+    CNY: "🇨🇳",
+    CHF: "🇨🇭",
+    SEK: "🇸🇪",
+    NZD: "🇳🇿",
+    MXN: "🇲🇽",
+    SGD: "🇸🇬",
+    HKD: "🇭🇰",
+    NOK: "🇳🇴",
+    KRW: "🇰🇷",
+    TRY: "🇹🇷",
+    RUB: "🇷🇺",
+    BRL: "🇧🇷",
+    ZAR: "🇿🇦",
+  };
+
   // Country to currency mapping
   const COUNTRY_TO_CURRENCY = {
     US: "USD",
@@ -79,6 +103,7 @@
     exchangeRates: {},
     originalPrices: new Map(),
     isInitialized: false,
+    widgetSettings: null, // Will be loaded from API
   };
 
   /**
@@ -92,6 +117,130 @@
     } catch (error) {
       console.error("Error detecting country:", error);
       return null;
+    }
+  }
+
+  /**
+   * Fetch widget settings from API
+   */
+  async function fetchWidgetSettings() {
+    try {
+      const response = await fetch(window.location.origin + "/app/currency-settings");
+      const data = await response.json();
+      if (data.success && data.settings) {
+        return data.settings;
+      }
+    } catch (error) {
+      console.error("Error fetching widget settings:", error);
+    }
+    return null;
+  }
+
+  /**
+   * Detect if user prefers dark mode
+   */
+  function isDarkMode() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  /**
+   * Get shadow CSS based on settings
+   */
+  function getShadowCSS(settings) {
+    if (!settings.shadowEnabled) {
+      return 'none';
+    }
+    const shadows = {
+      light: '0 1px 3px rgba(0,0,0,0.1)',
+      medium: '0 2px 8px rgba(0,0,0,0.1)',
+      strong: '0 4px 16px rgba(0,0,0,0.15)'
+    };
+    return shadows[settings.shadowDepth] || shadows.medium;
+  }
+
+  /**
+   * Get background CSS based on settings and theme
+   */
+  function getBackgroundCSS(settings) {
+    if (settings.backgroundType === 'gradient') {
+      return settings.backgroundGradient;
+    }
+    if (settings.backgroundType === 'theme') {
+      if (settings.themeMode === 'auto') {
+        return isDarkMode() ? settings.customDarkBg : settings.customLightBg;
+      }
+      if (settings.themeMode === 'dark') {
+        return settings.customDarkBg;
+      }
+      if (settings.themeMode === 'custom') {
+        return isDarkMode() ? settings.customDarkBg : settings.customLightBg;
+      }
+      return settings.customLightBg;
+    }
+    return settings.backgroundColor;
+  }
+
+  /**
+   * Get text color based on settings and theme
+   */
+  function getTextColor(settings) {
+    if (settings.backgroundType === 'theme' || settings.themeMode !== 'light') {
+      if (settings.themeMode === 'auto') {
+        return isDarkMode() ? settings.customDarkText : settings.customLightText;
+      }
+      if (settings.themeMode === 'dark') {
+        return settings.customDarkText;
+      }
+      if (settings.themeMode === 'custom') {
+        return isDarkMode() ? settings.customDarkText : settings.customLightText;
+      }
+      return settings.customLightText;
+    }
+    // For solid/gradient backgrounds, calculate contrasting color
+    return '#333333';
+  }
+
+  /**
+   * Get position CSS based on settings and screen size
+   */
+  function getPositionCSS(settings) {
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile) {
+      const positionMap = {
+        'bottom-fixed': { position: 'fixed', bottom: '0', left: '50%', transform: 'translateX(-50%)', width: '100%' },
+        'top-fixed': { position: 'fixed', top: '0', left: '50%', transform: 'translateX(-50%)', width: '100%' },
+        'floating': { position: 'fixed', bottom: '20px', right: '20px' },
+        'custom': { position: 'fixed', left: settings.mobileCustomX, top: settings.mobileCustomY }
+      };
+      return positionMap[settings.mobilePosition] || positionMap['bottom-fixed'];
+    } else {
+      const positionMap = {
+        'top-right': { position: 'fixed', top: settings.desktopCustomY, right: settings.desktopCustomX },
+        'top-left': { position: 'fixed', top: settings.desktopCustomY, left: settings.desktopCustomX },
+        'bottom-right': { position: 'fixed', bottom: settings.desktopCustomY, right: settings.desktopCustomX },
+        'bottom-left': { position: 'fixed', bottom: settings.desktopCustomY, left: settings.desktopCustomX },
+        'custom': { position: 'fixed', left: settings.desktopCustomX, top: settings.desktopCustomY }
+      };
+      return positionMap[settings.desktopPosition] || positionMap['top-right'];
+    }
+  }
+
+  /**
+   * Get currency display text based on display mode
+   */
+  function getCurrencyDisplay(code, settings) {
+    const symbol = CURRENCY_SYMBOLS[code] || code;
+    const flag = CURRENCY_FLAGS[code] || '';
+
+    switch (settings.displayMode) {
+      case 'flag':
+        return `${flag} ${code}`;
+      case 'flag-symbol':
+        return `${flag} ${symbol} ${code}`;
+      case 'symbol':
+      default:
+        return `${symbol} ${code}`;
     }
   }
 
@@ -237,7 +386,7 @@
   }
 
   /**
-   * Create currency selector dropdown
+   * Create currency selector dropdown with customization
    */
   function createCurrencyPicker() {
     // Check if picker already exists
@@ -245,44 +394,67 @@
       return;
     }
 
+    const settings = state.widgetSettings;
+    if (!settings) {
+      console.error("Widget settings not loaded");
+      return;
+    }
+
     const availableCurrencies = Object.keys(CURRENCY_SYMBOLS);
+    const position = getPositionCSS(settings);
+    const background = getBackgroundCSS(settings);
+    const textColor = getTextColor(settings);
+    const shadow = getShadowCSS(settings);
+    const isMobile = window.innerWidth <= 768;
+
+    // Build position styles
+    const positionStyles = Object.entries(position)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join('; ');
+
+    // Build compact mobile styles if needed
+    const compactStyles = isMobile && settings.mobileCompact ? `
+      max-width: 200px;
+    ` : '';
 
     const pickerHTML = `
       <div id="currency-converter-picker" style="
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        ${positionStyles};
+        z-index: ${settings.zIndex};
+        background: ${background};
+        border: ${settings.borderWidth} solid ${settings.borderColor};
+        border-radius: ${settings.borderRadius};
+        padding: ${settings.padding};
+        box-shadow: ${shadow};
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        ${compactStyles}
+        transition: all 0.3s ease;
       ">
         <label for="currency-select" style="
           display: block;
-          font-size: 12px;
+          font-size: calc(${settings.fontSize} * 0.85);
           font-weight: 600;
           margin-bottom: 6px;
-          color: #333;
+          color: ${textColor};
         ">
           Currency
         </label>
         <select id="currency-select" style="
-          width: 120px;
+          width: 100%;
+          min-width: ${isMobile && settings.mobileCompact ? '150px' : '120px'};
           padding: 6px 8px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          font-size: 14px;
+          border: 1px solid ${settings.borderColor};
+          border-radius: calc(${settings.borderRadius} / 2);
+          font-size: ${settings.fontSize};
           cursor: pointer;
-          background: white;
+          background: ${background};
+          color: ${textColor};
         ">
           ${availableCurrencies
             .map(
               (code) => `
             <option value="${code}" ${code === state.currentCurrency ? "selected" : ""}>
-              ${CURRENCY_SYMBOLS[code]} ${code}
+              ${getCurrencyDisplay(code, settings)}
             </option>
           `
             )
@@ -299,6 +471,57 @@
       const newCurrency = e.target.value;
       await changeCurrency(newCurrency);
     });
+
+    // Add resize listener to update position on screen size change
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        updatePickerPosition();
+      }, 250);
+    });
+
+    // Listen for theme changes
+    if (settings.themeMode === 'auto') {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        updatePickerStyles();
+      });
+    }
+  }
+
+  /**
+   * Update picker position on resize
+   */
+  function updatePickerPosition() {
+    const picker = document.getElementById("currency-converter-picker");
+    if (!picker || !state.widgetSettings) return;
+
+    const position = getPositionCSS(state.widgetSettings);
+    Object.entries(position).forEach(([key, value]) => {
+      picker.style[key] = value;
+    });
+  }
+
+  /**
+   * Update picker styles (for theme changes)
+   */
+  function updatePickerStyles() {
+    const picker = document.getElementById("currency-converter-picker");
+    const select = document.getElementById("currency-select");
+    if (!picker || !select || !state.widgetSettings) return;
+
+    const settings = state.widgetSettings;
+    const background = getBackgroundCSS(settings);
+    const textColor = getTextColor(settings);
+
+    picker.style.background = background;
+    select.style.background = background;
+    select.style.color = textColor;
+
+    const label = picker.querySelector('label');
+    if (label) {
+      label.style.color = textColor;
+    }
   }
 
   /**
@@ -327,6 +550,41 @@
     }
 
     console.log("Initializing Currency Converter...");
+
+    // Fetch widget settings first
+    const settings = await fetchWidgetSettings();
+    if (settings) {
+      state.widgetSettings = settings;
+      console.log("Widget settings loaded:", settings);
+    } else {
+      // Use default settings if API fails
+      state.widgetSettings = {
+        borderRadius: "8px",
+        borderWidth: "1px",
+        borderColor: "#dddddd",
+        shadowEnabled: true,
+        shadowDepth: "medium",
+        backgroundType: "solid",
+        backgroundColor: "#ffffff",
+        displayMode: "symbol",
+        themeMode: "auto",
+        customLightBg: "#ffffff",
+        customLightText: "#333333",
+        customDarkBg: "#1a1a1a",
+        customDarkText: "#ffffff",
+        desktopPosition: "top-right",
+        desktopCustomX: "20px",
+        desktopCustomY: "20px",
+        mobilePosition: "bottom-fixed",
+        mobileCustomX: "50%",
+        mobileCustomY: "auto",
+        mobileCompact: true,
+        fontSize: "14px",
+        padding: "12px",
+        zIndex: 9999,
+      };
+      console.log("Using default widget settings");
+    }
 
     // Fetch exchange rates
     const rates = await fetchExchangeRates();
